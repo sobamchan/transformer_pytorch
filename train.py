@@ -13,7 +13,7 @@ class Batch:
 
     def __init__(self, src, tgt=None, pad=0):
         self.src = src
-        self.src_mask = (src != pad).unsqueeze(-1)
+        self.src_mask = (src != pad).unsqueeze(-2)
         if tgt is not None:
             self.tgt = tgt[:, :-1]
             self.tgt_y = tgt[:, 1:]
@@ -76,7 +76,7 @@ class NoamOpt:
         self.model_size = model_size
         self._rate = 0
 
-    def setup(self):
+    def step(self):
         self._step += 1
         rate = self.rate()
         for p in self.optimizer.param_groups:

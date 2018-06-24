@@ -78,7 +78,7 @@ class SublayerConnection(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
     def forward(self, x, sublayer):
-        return x + self.dropout(sublayer(sublayer(self.norm(x))))
+        return x + self.dropout(sublayer(self.norm(x)))
 
 
 class EncoderLayer(nn.Module):
@@ -132,10 +132,6 @@ def subsequent_mask(size):
 
 
 def attention(query, key, value, mask=None, dropout=None):
-    print(query.size())
-    print(key.size())
-    print(value.size())
-    input()
     d_k = query.size(-1)
     scores = torch.matmul(query, key.transpose(-2, -1)) / math.sqrt(d_k)
 
