@@ -41,7 +41,7 @@ MIN_FREQ = 2
 SRC.build_vocab(train.src, min_freq=MIN_FREQ)
 TGT.build_vocab(train.trg, min_freq=MIN_FREQ)
 
-devices = [0, 1, 2]
+devices = [0]
 if True:
     pad_idx = TGT.vocab.stoi['<blank>']
     model = make_model(len(SRC.vocab), len(TGT.vocab), n=6)
