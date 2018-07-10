@@ -173,13 +173,13 @@ model_opt = NoamOpt(model.src_embed[0].d_model, 1, 400,
                                      eps=1e-9))
 
 
-# for epoch in range(10):
-#     model.train()
-#     run_epoch(data_gen(V, 30, 20), model,
-#               SimpleLossCompute(model.generator, criterion, model_opt))
-#     model.eval()
-#     print(run_epoch(data_gen(V, 30, 5), model,
-#                     SimpleLossCompute(model.generator, criterion, None)))
+for epoch in range(3):
+    model.train()
+    run_epoch(data_gen(V, 30, 20), model,
+              SimpleLossCompute(model.generator, criterion, model_opt))
+    model.eval()
+    print(run_epoch(data_gen(V, 30, 5), model,
+                    SimpleLossCompute(model.generator, criterion, None)))
 
 
 def greedy_decode(model, src, src_mask, max_len, start_symbol):
@@ -200,7 +200,7 @@ def greedy_decode(model, src, src_mask, max_len, start_symbol):
 
 
 # FOR TOY TASK
-# model.eval()
-# src = Variable(torch.LongTensor([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]))
-# src_mask = Variable(torch.ones(1, 1, 10))
-# print(greedy_decode(model, src, src_mask, max_len=10, start_symbol=1))
+model.eval()
+src = Variable(torch.LongTensor([[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]]))
+src_mask = Variable(torch.ones(1, 1, 10))
+print(greedy_decode(model, src, src_mask, max_len=10, start_symbol=1))
