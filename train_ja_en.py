@@ -1,6 +1,7 @@
 import os
 import argparse
 
+import dill
 from torchtext import data
 from torchtext import datasets
 
@@ -15,6 +16,7 @@ from train_utils import NoamOpt, run_epoch, rebatch, MultiGPULossCompute
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-path', type=str)
+    parser.add_argument('--output-path', type=str)
     parser.add_argument('--epoch', type=int)
     return parser.parse_args()
 
@@ -43,7 +45,13 @@ def get_dataset(dpath):
     return train, val, EN, JA
 
 
+def sort_key_fn(x):
+    return (len(x.src), len(x.trg))
+
+
 def run():
+    best_val_loss = 100
+
     args = get_args()
     train, val, EN, JA = get_dataset(args.data_path)
 
@@ -56,11 +64,12 @@ def run():
                                padding_idx=pad_idx,
                                smoothing=0.1)
     criterion.cuda()
-    BATCH_SIZE = 120
+    BATCH_SIZE = 540
     train_iter = MyIterator(train,
                             batch_size=BATCH_SIZE,
                             device=0,
                             repeat=False,
+                            # sort_key=sort_key_fn,
                             sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn,
                             train=True)
@@ -68,6 +77,7 @@ def run():
                             batch_size=BATCH_SIZE,
                             device=0,
                             repeat=False,
+                            # sort_key=sort_key_fn,
                             sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn,
                             train=False)
@@ -98,6 +108,14 @@ def run():
                                              devices=devices,
                                              opt=None))
         print(loss)
+        if best_val_loss > loss:
+            best_val_loss = loss
+            model.cpu()
+            # torch.save((model_par, EN, JA), args.output_path)
+            with open(args.output_path, 'wb') as f:
+                # dill.dump((model_par, EN, JA), f)
+                dill.dump((model, EN, JA), f)
+            model.cuda()
 
 
 if __name__ == '__main__':
