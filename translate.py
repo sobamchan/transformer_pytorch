@@ -29,6 +29,7 @@ def main(args):
     model.eval()
 
     for sent in src_sents:
+        sent = sent.split()
         src = torch.LongTensor([[SRC.vocab.stoi[w] for w in sent]])
         src = Variable(src)
         src_mask = (src != SRC.vocab.stoi['blank']).unsqueeze(-2)
@@ -41,7 +42,7 @@ def main(args):
             if sym == '</s>':
                 break
             trans += sym + ' '
-        trans.replace('<s> ', '')
+        trans = trans.replace('<s> ', '')
         result_sents.append(trans)
 
     open(args.result_file_path, 'w').write('\n'.join(result_sents) + '\n')
