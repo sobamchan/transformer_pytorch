@@ -6,7 +6,7 @@ from torchtext import data
 from torchtext import datasets
 
 import torch
-import torch.nn as nn
+# import torch.nn as nn
 
 from models import make_model
 from train_utils import LabelSmoothing, MyIterator, batch_size_fn
@@ -69,7 +69,6 @@ def run():
                             batch_size=BATCH_SIZE,
                             device=0,
                             repeat=False,
-                            # sort_key=sort_key_fn,
                             sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn,
                             train=True)
@@ -77,11 +76,10 @@ def run():
                             batch_size=BATCH_SIZE,
                             device=0,
                             repeat=False,
-                            # sort_key=sort_key_fn,
                             sort_key=lambda x: (len(x.src), len(x.trg)),
                             batch_size_fn=batch_size_fn,
                             train=False)
-    model_par = nn.DataParallel(model, device_ids=devices)
+    # model_par = nn.DataParallel(model, device_ids=devices)
 
     model_opt = NoamOpt(model.src_embed[0].d_model,
                         1,
@@ -92,17 +90,21 @@ def run():
                                          eps=1e-9))
 
     for epoch in range(args.epoch):
-        model_par.train()
+        # model_par.train()
+        model.train()
         run_epoch((rebatch(pad_idx, b) for b in train_iter),
-                  model_par,
+                  # model_par,
+                  model,
                   MultiGPULossCompute(model.generator,
                                       criterion,
                                       devices=devices,
                                       opt=model_opt))
 
-        model_par.eval()
+        # model_par.eval()
+        model.eval()
         loss = run_epoch((rebatch(pad_idx, b) for b in valid_iter),
-                         model_par,
+                         # model_par,
+                         model,
                          MultiGPULossCompute(model.generator,
                                              criterion,
                                              devices=devices,
@@ -111,9 +113,7 @@ def run():
         if best_val_loss > loss:
             best_val_loss = loss
             model.cpu()
-            # torch.save((model_par, EN, JA), args.output_path)
             with open(args.output_path, 'wb') as f:
-                # dill.dump((model_par, EN, JA), f)
                 dill.dump((model, EN, JA), f)
             model.cuda()
 

@@ -161,7 +161,7 @@ class MyIterator(data.Iterator):
         if self.train:
 
             def pool(d, random_shuffler):
-                for p in data.batch(d, self.batch_size * 10):
+                for p in data.batch(d, self.batch_size * 100):
                     p_batch = data.batch(
                             sorted(p, key=self.sort_key),
                             self.batch_size,
