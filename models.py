@@ -20,6 +20,12 @@ class EncoderDecoder(nn.Module):
         self.generator = generator
 
     def forward(self, src, tgt, src_mask, tgt_mask):
+        '''
+        src: B, S
+        tgt: B, S
+        src_mask: B, 1, S
+        tgt_mask: B, S, S
+        '''
         return self.decode(self.encode(src, src_mask), src_mask, tgt, tgt_mask)
 
     def encode(self, src, src_mask):
